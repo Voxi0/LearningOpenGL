@@ -72,55 +72,30 @@ void Framebuffer::createRenderbuffer(const GLenum &renderbufferType) {
     // Bind Framebuffer Object
     glBindFramebuffer(GL_FRAMEBUFFER, this->framebuffer);
 
-    // Create A Renderbuffer Object
+    // Generate A Renderbuffer Object
     glGenRenderbuffers(1, &this->renderbufferObject);
     glBindRenderbuffer(GL_RENDERBUFFER, this->renderbufferObject);
-    if(this->msaaEnabled) {
-        glRenderbufferStorageMultisample(GL_RENDERBUFFER, this->msaaSamples, renderbufferType, this->windowWidth, this->windowHeight);
-    } else {
-        glRenderbufferStorage(GL_RENDERBUFFER, renderbufferType, this->windowWidth, this->windowHeight);
+    switch(this->msaaEnabled) {
+        case true:
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, this->msaaSamples, renderbufferType, this->windowWidth, this->windowHeight);
+            break;
+        default:
+            glRenderbufferStorage(GL_RENDERBUFFER, renderbufferType, this->windowWidth, this->windowHeight);
+            break;
     }
 
-    // Attach Renderbuffer Object to Framebuffer
+    // Attach Renderbuffer Object to Framebuffer Object
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->renderbufferObject);
 
-    // Check if Framebuffer is Complete or Not
-    if(glCheckFramebufferStatus(this->framebuffer) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "Failed to Create Framebuffer!\n";
-        std::cerr << "Status: " << glCheckFramebufferStatus(this->framebuffer);
-    }
-
-    // Unbind Framebuffer Object
+    // Unbind Renderbuffer and Framebuffer Object
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 // Create Depth Buffer Texture
 void Framebuffer::createShadowMap() {
-    // Generate A Depth Map Texture Object
+    // Create A Depth Map Texture
     glGenTextures(1, &this->depthBufferTexture);
-    glBindTexture(GL_TEXTURE_2D, this->depthBufferTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, this->windowWidth, this->windowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-
-    // Texture Parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // Attach Depth Map Texture to Framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, this->framebuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, this->depthBufferTexture, 0);
-    glReadBuffer(GL_NONE);
-    glDrawBuffer(GL_NONE);
-
-    // Check if Framebuffer is Complete or Not
-    if(glCheckFramebufferStatus(this->framebuffer) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "Failed to Create Framebuffer!\n";
-        std::cerr << "Status: " << glCheckFramebufferStatus(this->framebuffer);
-    }
-
-    // Unbind Framebuffer Object
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 // Destroy

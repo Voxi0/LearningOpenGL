@@ -241,8 +241,7 @@ int main(void) {
 
         // Bind Depth Map
         glViewport(0, 0, shadowMapWidth, shadowMapHeight);
-        shadowMapShaders.use();
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, depthMap.getFramebufferObject());
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMap.getFramebufferObject());
 
         // Clear Depth Buffer Bit
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -360,6 +359,7 @@ int main(void) {
     // Delete Framebuffers
     msaaFramebuffer.destroy(true);
     postProcessingFramebuffer.destroy(false);
+    depthMap.destroy(false);
 
     // Delete Models
     testObject.destroy();
